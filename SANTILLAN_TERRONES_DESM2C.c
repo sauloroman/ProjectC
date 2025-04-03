@@ -12,11 +12,15 @@
 #define WORDSQUANTITY 20
 #define WORDLENGTH 50
 
+char words[WORDSQUANTITY][WORDLENGTH];
+int positionWordArray = 0;
+
 // Function declarations
 void printHeader( int size, char message[]);
 void wordsAndPhrasesScreen( void );
 void welcomeScreen( void );
 
+// Show Menus Functions
 void showOptions( int numberOfOptions, char options[numberOfOptions][SIZE_OPTION]);
 void showWordsAndPhrasesMenu( void );
 void showMenu( void );
@@ -138,8 +142,7 @@ void wordsAndPhrasesScreen( void ) {
 	system("cls");
 	
 	int exit = 0;
-	int chosenOption, position = 0;
-	char words[WORDSQUANTITY][WORDLENGTH];
+	int chosenOption;
 	
 	do {
 		printHeader(40, "WORDS AND PHRASES");
@@ -148,11 +151,11 @@ void wordsAndPhrasesScreen( void ) {
 		
 		switch( chosenOption ) {
 			case 1: 
-				createNewWord( position, words );
-				position++;
+				createNewWord( positionWordArray, words );
+				positionWordArray++;
 				break;
 			case 3:
-				showSavedWords( position, words );
+				showSavedWords( positionWordArray, words );
 				break;
 			case 6:
 				exit = 1;
@@ -160,7 +163,6 @@ void wordsAndPhrasesScreen( void ) {
 		}
 	} while( exit != 1 );
 
-	
 }
 
 void createNewWord( int position, char words[WORDSQUANTITY][WORDLENGTH] ) {
