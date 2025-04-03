@@ -1,12 +1,16 @@
-/* SISTEMA DE APRENDIZAJE DE INGLÉS CON CUESTIONARIOS INTERACTIVOS */
+/* SISTEMA DE APRENDIZAJE DE INGLÃ‰S CON CUESTIONARIOS INTERACTIVOS */
 
 #include<stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define SIZE_OPTION 50
 #define NEON_PURPLE "\033[1;35m"
 #define NEON_GREEN "\033[1;92m"
 #define RESET "\033[1;37m"
+
+#define WORDSQUANTITY 20
+#define WORDLENGTH 50
 
 // Function declarations
 void printHeader( int size, char message[]);
@@ -17,30 +21,39 @@ void showOptions( int numberOfOptions, char options[numberOfOptions][SIZE_OPTION
 void showWordsAndPhrasesMenu( void );
 void showMenu( void );
 
+// Words and phrases functions
+void createNewWord( int position, char words[WORDSQUANTITY][WORDLENGTH] );
+void createNewPhrase( char phrases[] );
+void showSavedWords( int position, char words[WORDSQUANTITY][WORDLENGTH] );
+
 int validateChosenMenuOption( int lowerBound, int upperBound );
 
 int main ( void ) {
 	
 	printf(RESET);
 	
-	int chosenOption;
+	int chosenOption, exit = 0;
 	
 	welcomeScreen();
 	
-	showMenu();
-	chosenOption = validateChosenMenuOption(1, 4);
+	do {
+		showMenu();
+		chosenOption = validateChosenMenuOption(1, 4);
 		
-	switch( chosenOption ) {
-		case 1:
-			wordsAndPhrasesScreen();
-			break;
-		case 2:
-			break;
-		case 3:
-			break;
-		case 4: 
-			break;
-	}	
+		switch( chosenOption ) {
+			case 1:
+				wordsAndPhrasesScreen();
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+			case 4:
+				exit = 1; 
+				break;
+		}	
+		
+	} while ( exit != 1 );
 	
 	return 0;
 }
@@ -88,14 +101,15 @@ void showMenu( void ) {
 }
 
 void showWordsAndPhrasesMenu( void ) {
-	char options[5][SIZE_OPTION] = {
+	char options[6][SIZE_OPTION] = {
 		"Create new word",
 		"Create new phrase",
 		"See all my words",
 		"See all my phrases",
+		"Phrase of the day",
 		"Return",
 	};
-	showOptions(5, options);
+	showOptions(6, options);
 }
 
 void welcomeScreen( void ) {	
@@ -122,17 +136,55 @@ void welcomeScreen( void ) {
 void wordsAndPhrasesScreen( void ) {
 	
 	system("cls");
-	int chosenOption;
 	
-	printHeader(40, "WORDS AND PHRASES");
-	showWordsAndPhrasesMenu();
-	chosenOption = validateChosenMenuOption(1, 5);
+	int exit = 0;
+	int chosenOption, position = 0;
+	char words[WORDSQUANTITY][WORDLENGTH];
+	
+	do {
+		printHeader(40, "WORDS AND PHRASES");
+		showWordsAndPhrasesMenu();
+		chosenOption = validateChosenMenuOption(1, 6);
+		
+		switch( chosenOption ) {
+			case 1: 
+				createNewWord( position, words );
+				position++;
+				break;
+			case 3:
+				showSavedWords( position, words );
+				break;
+			case 6:
+				exit = 1;
+				break;
+		}
+	} while( exit != 1 );
+
 	
 }
 
+void createNewWord( int position, char words[WORDSQUANTITY][WORDLENGTH] ) {
+	char word[WORDLENGTH];
+	
+	printf("Enter your new word: ");
+	scanf("%s", word);
+	
+	if ( position == WORDSQUANTITY - 1 ) {
+		printf("The dictionary words is already full\n");
+		return;
+	}
+	
+	printf("The word saved correctly\n\n");
+	strcpy(words[position], word);
+	system("cls");
+}
 
-
-
-
-
-
+void showSavedWords( int position, char words[WORDSQUANTITY][WORDLENGTH] ) {
+	system("cls");
+	printHeader(40, "YOUR SAVED WORDS");
+	int i;
+	for ( i = 0; i < position; i++ ) {
+		printf(NEON_PURPLE "%d. %3s\n" RESET, i+1, words[i] );
+	}	
+	printf("\n");
+}
