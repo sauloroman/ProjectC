@@ -3,21 +3,42 @@
 #include<stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 
+#define RED "\x1b[31m"
 #define SIZE_OPTION 50
 #define NEON_PURPLE "\033[1;35m"
 #define NEON_GREEN "\033[1;92m"
 #define RESET "\033[1;37m"
 
 #define WORDSQUANTITY 20
-#define WORDLENGTH 50
+#define WORDLENGTH 200
+#define QUANTITYPHRASES 15
 
 char words[WORDSQUANTITY][WORDLENGTH];
 int positionWordArray = 0;
 
+char phrasesToKnow[QUANTITYPHRASES][WORDLENGTH] = {
+	"What's up? - ¿Qué onda? / ¿Qué tal?",  
+	"No worries! - ¡No te preocupes! / Todo bien.",  
+	"Chill out! - Relájate / Tranquilízate.",  
+	"I'm down. - Me apunto / Estoy dentro.",  
+	"That’s lit! - ¡Eso está genial!",  
+	"Hit me up. - Escríbeme / Llámame.",  
+	"No cap. - No es broma / Es en serio.",  
+	"Lowkey - En secreto / Sutilmente.",  
+	"Highkey - Muy obvio / Abiertamente.",  
+	"It sucks. - Es una porquería / Es una mierda.",  
+	"Bummer! - ¡Qué mala onda! / ¡Qué lástima.",  
+	"Go off! - Dale con todo / Exprésate sin miedo.",  
+	"Deadass - Hablando en serio / De verdad.",  
+	"Take an L - Perder / Fracasar.",  
+	"Salty - Ardido / Enojado.",  
+	"Vibe check - ¿Buena vibra o no?"
+};
+
 // Function declarations
 void printHeader( int size, char message[]);
-void wordsAndPhrasesScreen( void );
 void welcomeScreen( void );
 
 // Show Menus Functions
@@ -26,14 +47,22 @@ void showWordsAndPhrasesMenu( void );
 void showMenu( void );
 
 // Words and phrases functions
+void wordsAndPhrasesScreen( void );
 void createNewWord( int position, char words[WORDSQUANTITY][WORDLENGTH] );
 void createNewPhrase( char phrases[] );
 void showSavedWords( int position, char words[WORDSQUANTITY][WORDLENGTH] );
+void showOnePhraseToKnow( int quantityPhrases, char phrases[quantityPhrases][WORDLENGTH] );
 
+// Tests functions
+void testsScreen( void );
+
+// Validate inputs
 int validateChosenMenuOption( int lowerBound, int upperBound );
 
 int main ( void ) {
 	
+	setlocale(LC_ALL, "");
+	srand(time(NULL));
 	printf(RESET);
 	
 	int chosenOption, exit = 0;
@@ -49,6 +78,7 @@ int main ( void ) {
 				wordsAndPhrasesScreen();
 				break;
 			case 2:
+				testsScreen();
 				break;
 			case 3:
 				break;
@@ -105,15 +135,13 @@ void showMenu( void ) {
 }
 
 void showWordsAndPhrasesMenu( void ) {
-	char options[6][SIZE_OPTION] = {
+	char options[4][SIZE_OPTION] = {
 		"Create new word",
-		"Create new phrase",
 		"See all my words",
-		"See all my phrases",
-		"Phrase of the day",
+		"Phrases to know",
 		"Return",
 	};
-	showOptions(6, options);
+	showOptions(4, options);
 }
 
 void welcomeScreen( void ) {	
@@ -147,17 +175,20 @@ void wordsAndPhrasesScreen( void ) {
 	do {
 		printHeader(40, "WORDS AND PHRASES");
 		showWordsAndPhrasesMenu();
-		chosenOption = validateChosenMenuOption(1, 6);
+		chosenOption = validateChosenMenuOption(1, 4);
 		
 		switch( chosenOption ) {
 			case 1: 
 				createNewWord( positionWordArray, words );
 				positionWordArray++;
 				break;
-			case 3:
+			case 2:
 				showSavedWords( positionWordArray, words );
 				break;
-			case 6:
+			case 3:
+				showOnePhraseToKnow( QUANTITYPHRASES, phrasesToKnow );
+				break;
+			case 4:
 				exit = 1;
 				break;
 		}
@@ -189,4 +220,21 @@ void showSavedWords( int position, char words[WORDSQUANTITY][WORDLENGTH] ) {
 		printf(NEON_PURPLE "%d. %3s\n" RESET, i+1, words[i] );
 	}	
 	printf("\n");
+}
+
+void showOnePhraseToKnow( int quantityPhrases, char phrases[quantityPhrases][WORDLENGTH] ) {
+	system("cls");
+	printHeader(40, "HERE YOU GO A NEW PHRASE");
+	int randomNum = rand() % quantityPhrases;
+	printf("%d", randomNum);
+	printf( RED "%5s\n\n" RESET, phrases[randomNum] );
+}
+
+void testsScreen( void ) {
+	system("cls");
+	
+	int exit = 0;
+	int chosenOption;
+	printHeader(40, "TRY TESTS AND IMPROVE");
+	gets("");
 }
