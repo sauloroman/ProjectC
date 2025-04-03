@@ -1,21 +1,23 @@
 /* SISTEMA DE APRENDIZAJE DE INGLÉS CON CUESTIONARIOS INTERACTIVOS */
 
 #include<stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <locale.h>
+#include<stdlib.h>
+#include<string.h>
+#include<locale.h>
 
 #define RED "\x1b[31m"
 #define SIZE_OPTION 50
 #define NEON_PURPLE "\033[1;35m"
 #define NEON_GREEN "\033[1;92m"
 #define RESET "\033[1;37m"
+#define NEON_BLUE "\033[38;2;31;81;255m"
 
 #define WORDSQUANTITY 20
 #define WORDLENGTH 200
 #define QUANTITYPHRASES 15
 
 char words[WORDSQUANTITY][WORDLENGTH];
+char wordsInSpanish[WORDSQUANTITY][WORDLENGTH];
 int positionWordArray = 0;
 
 char phrasesToKnow[QUANTITYPHRASES][WORDLENGTH] = {
@@ -44,19 +46,21 @@ void welcomeScreen( void );
 // Show Menus Functions
 void showOptions( int numberOfOptions, char options[numberOfOptions][SIZE_OPTION]);
 void showWordsAndPhrasesMenu( void );
+void showTestsMenu(void);
 void showMenu( void );
 
 // Words and phrases functions
 void wordsAndPhrasesScreen( void );
-void createNewWord( int position, char words[WORDSQUANTITY][WORDLENGTH] );
+void createNewWord( int position, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH] );
 void createNewPhrase( char phrases[] );
-void showSavedWords( int position, char words[WORDSQUANTITY][WORDLENGTH] );
+void showSavedWords( int position, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH] );
 void showOnePhraseToKnow( int quantityPhrases, char phrases[quantityPhrases][WORDLENGTH] );
 
 // Tests functions
 void testsScreen( void );
 
-// Validate inputs
+// Helper functions
+int isArrayEmpty( int arr[][] );
 int validateChosenMenuOption( int lowerBound, int upperBound );
 
 int main ( void ) {
@@ -144,6 +148,16 @@ void showWordsAndPhrasesMenu( void ) {
 	showOptions(4, options);
 }
 
+void showTestsMenu(void) {
+	char options[4][SIZE_OPTION] = {
+		"Study words",
+		"Study phrases",
+		"Study quizzes",
+		"Return"
+	};
+	showOptions(4, options);
+}
+
 void welcomeScreen( void ) {	
 	printHeader(40, "ENGLISH LANGUAGE LEARNING SYSTEM");
 	
@@ -179,11 +193,11 @@ void wordsAndPhrasesScreen( void ) {
 		
 		switch( chosenOption ) {
 			case 1: 
-				createNewWord( positionWordArray, words );
+				createNewWord( positionWordArray, words, wordsInSpanish);
 				positionWordArray++;
 				break;
 			case 2:
-				showSavedWords( positionWordArray, words );
+				showSavedWords( positionWordArray, words, wordsInSpanish);
 				break;
 			case 3:
 				showOnePhraseToKnow( QUANTITYPHRASES, phrasesToKnow );
@@ -196,11 +210,15 @@ void wordsAndPhrasesScreen( void ) {
 
 }
 
-void createNewWord( int position, char words[WORDSQUANTITY][WORDLENGTH] ) {
+void createNewWord( int position, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH]) {
 	char word[WORDLENGTH];
+	char wordInSpanish[WORDLENGTH];
 	
 	printf("Enter your new word: ");
 	scanf("%s", word);
+	
+	printf("Enter the meaning of the word: ");
+	scanf("%s", wordInSpanish);
 	
 	if ( position == WORDSQUANTITY - 1 ) {
 		printf("The dictionary words is already full\n");
@@ -209,15 +227,18 @@ void createNewWord( int position, char words[WORDSQUANTITY][WORDLENGTH] ) {
 	
 	printf("The word saved correctly\n\n");
 	strcpy(words[position], word);
+	strcpy(wordsInSpanish[position],wordInSpanish);
 	system("cls");
 }
 
-void showSavedWords( int position, char words[WORDSQUANTITY][WORDLENGTH] ) {
+void showSavedWords( int position, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH]) {
 	system("cls");
 	printHeader(40, "YOUR SAVED WORDS");
+	
 	int i;
 	for ( i = 0; i < position; i++ ) {
-		printf(NEON_PURPLE "%d. %3s\n" RESET, i+1, words[i] );
+		printf(NEON_PURPLE "%d. %3s -------- " RESET, i+1, words[i] );
+		printf(NEON_BLUE "%3s\n" RESET, wordsInSpanish[i] );
 	}	
 	printf("\n");
 }
@@ -226,7 +247,6 @@ void showOnePhraseToKnow( int quantityPhrases, char phrases[quantityPhrases][WOR
 	system("cls");
 	printHeader(40, "HERE YOU GO A NEW PHRASE");
 	int randomNum = rand() % quantityPhrases;
-	printf("%d", randomNum);
 	printf( RED "%5s\n\n" RESET, phrases[randomNum] );
 }
 
@@ -235,6 +255,17 @@ void testsScreen( void ) {
 	
 	int exit = 0;
 	int chosenOption;
-	printHeader(40, "TRY TESTS AND IMPROVE");
-	gets("");
+	
+	do {	
+		printHeader(40, "TRY TESTS AND IMPROVE");
+		showTestsMenu();
+		chosenOption = validateChosenMenuOption(1, 4);
+		
+		switch(chosenOption) {
+			case 1:
+				
+				break;
+		}
+	} while( exit != 1 );
+	
 }
