@@ -3,13 +3,16 @@
 #include<string.h>
 #include<locale.h>
 
+// ########################################################## 
+// CONSTANTS
+// ##########################################################
 #define RED "\x1b[31m"
-#define SIZE_OPTION 50
 #define NEON_PURPLE "\033[1;35m"
 #define NEON_GREEN "\033[1;92m"
 #define RESET "\033[1;37m"
 #define NEON_BLUE "\033[38;2;31;81;255m"
 
+#define SIZE_OPTION 50
 #define WORDSQUANTITY 20
 #define WORDLENGTH 200
 #define QUANTITYPHRASES 15
@@ -19,15 +22,19 @@
 #define QUANTITYOFLECTURES 3
 #define LECTURELENGTH 1000
 #define QUANTITYLECTURES 3
-#define QUANTITYCOMMENTS 10
+#define QUANTITYCOMMENTS 100
 #define COMMENTLENGTH 200
 
+// ########################################################## 
+// GLOBAL VARIABLES
+// ##########################################################
 char words[WORDSQUANTITY][WORDLENGTH];
 char wordsInSpanish[WORDSQUANTITY][WORDLENGTH];
 char comments[QUANTITYCOMMENTS][COMMENTLENGTH];
+char difficultyComment[QUANTITYCOMMENTS][COMMENTLENGTH];
 int testsResults[QUANTITYOFTESTS];
 
-int quantityOfWordsSaved = 0;
+int quantityOfWordsSaved = 0, quantityOfWordsDelete = 0;
 int quantityOfTestsWords = 0;
 int quantityOfTestsPhrases = 0;
 int wordsCorrectCounter = 0, wordIncorrectCounter = 0;
@@ -53,7 +60,6 @@ char phrasesToKnow[QUANTITYPHRASES][WORDLENGTH] = {
 	"Salty",  
 	"Vibe check"
 };
-
 char phrasesToKnowInSpanish[QUANTITYPHRASES][WORDLENGTH] = {
     "¿Qué onda? / ¿Qué tal?",
     "¡No te preocupes! / Todo bien.",
@@ -72,7 +78,6 @@ char phrasesToKnowInSpanish[QUANTITYPHRASES][WORDLENGTH] = {
     "Ardido / Enojado.",
     "¿Buena vibra o no?"
 };
-
 char lectures[QUANTITYLECTURES][3][LECTURELENGTH] = {
 	{
 		"A Day at the Park",
@@ -88,23 +93,35 @@ char lectures[QUANTITYLECTURES][3][LECTURELENGTH] = {
 		"The Time Traveler’s Dilemma",
 		"Dr. James Carter had spent years working on his time machine. Finally, on a cold December night, he activated it. The machine whirred, and in seconds, he found himself in the year 1850. He looked around in amazement—horse-drawn carriages, gas lamps, and people dressed in old-fashioned clothes. But something was wrong. His machine was gone! He panicked. Without it, he was stuck in the past forever.",
 		"James took a deep breath and tried to think. He needed tools, but modern technology didn’t exist yet. He walked through the town, observing blacksmiths, carpenters, and engineers. Perhaps he could use their skills to rebuild the machine. But how would he explain his knowledge? Would they believe him? As he sat in a quiet alley, he realized that history was watching him. If he made one mistake, he could change the future forever."
-	}	
+	},	
 };
 
+// ########################################################## 
 // Function declarations
-void printHeader( int size, char message[]);
-void welcomeScreen( void );
+// ##########################################################
 
-// Show Menus Functions
-void showOptions( int numberOfOptions, char options[numberOfOptions][SIZE_OPTION]);
+void welcomeScreen( void );
+void wordsAndPhrasesScreen( void );
+void testsScreen( void );
+void stadisticsScreen( void );
+
+void showMenu( void );
 void showWordsAndPhrasesMenu( void );
 void showTestsMenu(void);
-void showMenu( void );
+void showReadingMenu(void);
 
-// Words and phrases functions
-void wordsAndPhrasesScreen( void );
-void createNewPhrase( char phrases[] );
 void createNewWord( 
+	int quantityOfWordsSaved, 
+	char words[WORDSQUANTITY][WORDLENGTH], 
+	char wordsInSpanish[WORDSQUANTITY][WORDLENGTH] 
+);
+void deleteWordRecursive(
+	int index, 
+	int quantityOfWordsSaved, 
+	char words[WORDSQUANTITY][WORDLENGTH], 
+	char wordsInSpanish[WORDSQUANTITY][WORDLENGTH]
+); // RECURSIVE 
+void deleteWord(
 	int quantityOfWordsSaved, 
 	char words[WORDSQUANTITY][WORDLENGTH], 
 	char wordsInSpanish[WORDSQUANTITY][WORDLENGTH] 
@@ -120,8 +137,6 @@ void showOnePhraseToKnow(
 	char phrasesInSpanish[QUANTITYPHRASES][WORDLENGTH] 
 );
 
-// Tests functions
-void testsScreen( void );
 void studyWords( 
 	int quantityOfWordsSaved, 
 	char words[WORDSQUANTITY][WORDLENGTH], 
@@ -133,32 +148,41 @@ void studyPhrases (
 );
 void readingActivities( char lectures[QUANTITYLECTURES][3][LECTURELENGTH] );
 void showLecture( char text[3][LECTURELENGTH] );
-void askForComment( char comments[QUANTITYCOMMENTS][COMMENTLENGTH] );
+void askForComment( 
+	char comments[QUANTITYCOMMENTS][COMMENTLENGTH], 
+	int difficulty, 
+	char difficultyComment[QUANTITYCOMMENTS][COMMENTLENGTH] 
+);
 void incrementCounterLectures( int level );
+void showComments(	
+	char comments[QUANTITYCOMMENTS][COMMENTLENGTH], 
+	char difficultyComment[QUANTITYCOMMENTS][COMMENTLENGTH]
+);
 
-// Stadistics Functions
-void stadisticsScreen( void );
-void printSeparator( int columnsWidths[], int numColumns );
-void printRow( char *row[], int columnsWidths[], int numColumns );
+void summaryTests( void );
 void counterWordStadistics( void );
 void counterPhrasesStadistics( void );
 void counterReadingStadistics( void );
 
-// Helper functions
+void printHeader( int size, char message[]);
+void printSeparator( int columnsWidths[], int numColumns );
+void printRow( char *row[], int columnsWidths[], int numColumns );
+void showOptions( int numberOfOptions, char options[numberOfOptions][SIZE_OPTION]);
+int recursiveSum( int arr[], int n ); // RECURSIVE
+float recursiveAverage( int arr[], int n );
 int validateChosenMenuOption( int lowerBound, int upperBound );
 int isValueInArray( int value, int size, int arr[] );
 int isWordInArray( char word[], int size, char words[QUANTITYQUESTIONOPTIONS][WORDLENGTH] );
-int recursiveSum( int arr[], int n );
-float recursiveAverage( int arr[], int n );
+int validateValueInRange( int lowerBound, int upperBound, int flagValue, char message[], char errorMessage[] );
 
+// ########################################################## 
+// Function Definitions
+// ##########################################################
 int main ( void ) {
-	
 	setlocale(LC_ALL, "");
 	srand(time(NULL));
 	printf(RESET);
-	
 	int chosenOption, exit = 0;
-	
 	welcomeScreen();
 	
 	do {
@@ -182,42 +206,451 @@ int main ( void ) {
 		
 	} while ( exit != 1 );
 	
-	
+	goodbyeScreen();
 	return 0;
 }
 
-int recursiveSum( int arr[], int n ) {
-	if ( n == 0 ) return 0;
-	return arr[ n - 1 ] + recursiveSum( arr, n - 1 ); // Recursive calls
+// ########################################################## 
+// SCREEN FUNCTIONS
+// ##########################################################
+
+void welcomeScreen( void ) {	
+	printHeader(40, "ENGLISH LANGUAGE LEARNING SYSTEM");
+	
+	char uta[6][50] = {
+     	"  _      _                   _ ",
+        " | |    (_)                 | |",
+        " | |     _ _ __  _ __  _   _| |",
+        " | |    | | '_ \\| '_ \\| | | |",
+        " | |____| | | | | | | | |_| | |",
+        " |______|_|_| |_|_| |_|\\__,_|_|",
+    };
+    
+    int i;
+    for (i = 0; i < 6; i++) {        
+        printf(NEON_PURPLE "%s\n", uta[i]);
+    }
+    
+	printf(RESET "\n\nPress Enter to continue...");
+    getchar();
 }
 
-float recursiveAverage( int arr[], int n ) {
-	if ( n == 0 ) return 0;
-	int sum = recursiveSum( arr, n );
-	return (float) sum / n;
-}
+void goodbyeScreen(void) {
+	system("cls");
+    printHeader(40, "THANK YOU FOR USING THE SYSTEM");
 
-void printSeparator( int columnsWidths[], int numColumns ) { 
-	printf(NEON_BLUE);
+    char byeArt[6][60] = {
+        "   ____                 _ _                ",
+        "  / ___| ___   ___   __| | |__  _   _  ___ ",
+        " | |  _ / _ \\ / _ \\ / _` | '_ \\| | | |/ _ \\",
+        " | |_| | (_) | (_) | (_| | |_) | |_| |  __/",
+        "  \\____|\\___/ \\___/ \\__,_|_.__/ \\__, |\\___|",
+        "                                 |___/     "
+    };
+
 	int i;
-	for ( i = 0; i < numColumns; i++ ) {
-		printf("+");
-		int j;
-		for( j = 0; j < columnsWidths[i]; j++ ) {
-			printf("-");
+    for (i = 0; i < 6; i++) {
+        printf(NEON_PURPLE "%s\n", byeArt[i]);
+    }
+
+    printf(RESET "\n\nPress Enter to exit...");
+    getchar();
+}
+
+
+void wordsAndPhrasesScreen( void ) {
+	
+	system("cls");
+	
+	int exit = 0;
+	int chosenOption;
+	
+	do {
+		printHeader(40, "WORDS AND PHRASES");
+		showWordsAndPhrasesMenu();
+		chosenOption = validateChosenMenuOption(1, 5);
+		
+		switch( chosenOption ) {
+			case 1: 
+				createNewWord( quantityOfWordsSaved, words, wordsInSpanish);
+				quantityOfWordsSaved++;
+				break;
+			case 2: 
+				if( quantityOfWordsSaved != 0 ) {
+					showSavedWords(quantityOfWordsSaved, words, wordsInSpanish);
+					deleteWord( quantityOfWordsSaved, words, wordsInSpanish);
+					quantityOfWordsSaved--;
+					quantityOfWordsDelete++;
+				} else {
+					printf(RED "You have not created words yet\n\n" RESET );
+				}
+				break;
+			case 3:
+				if( quantityOfWordsSaved != 0 ) {
+					showSavedWords(quantityOfWordsSaved, words, wordsInSpanish);
+				} else {
+					printf(RED "You have not created words yet\n\n" RESET );
+				}
+				break;
+			case 4:
+				showOnePhraseToKnow( QUANTITYPHRASES, phrasesToKnow, phrasesToKnowInSpanish );
+				break;
+			case 5:
+				exit = 1;
+				break;
+		}
+	} while( exit != 1 );
+
+}
+
+void testsScreen( void ) {
+	system("cls");
+	
+	int exit = 0;
+	int chosenOption;
+	
+	do {	
+		printHeader(40, "TRY TESTS AND IMPROVE");
+		showTestsMenu();
+		chosenOption = validateChosenMenuOption(1, 4);
+		
+		switch(chosenOption) {
+			case 1:				
+				studyWords( quantityOfWordsSaved, words, wordsInSpanish );
+				break;
+			case 2:
+				studyPhrases( phrasesToKnow, phrasesToKnowInSpanish );
+				break;
+			case 3:
+				readingActivities( lectures );
+				break;
+			case 4:
+				exit = 1;
+				break;
+		}
+	} while( exit != 1 );
+	
+}
+
+void stadisticsScreen() {
+	system("cls");
+	while (getchar() != '\n'); 
+	printHeader(40, "STADISTICS ABOUT YOUR PROGRESS");
+	
+	counterWordStadistics();
+	counterPhrasesStadistics();
+	counterReadingStadistics();
+	summaryTests();
+	
+	printf("\nPress enter to return\n\n");
+	getchar();
+}
+
+// ########################################################## 
+// MENU FUNCTIONS
+// ##########################################################
+
+void showMenu( void ) {
+	system("cls");
+	printHeader(30, "OPTIONS MENU");
+	char options[4][SIZE_OPTION] = {
+		"Words and Phrases",
+		"Tests Activities",
+		"Stadistics",
+		"Exit",
+	};
+	showOptions(4, options);
+}
+
+void showWordsAndPhrasesMenu( void ) {
+	char options[5][SIZE_OPTION] = {
+		"Create new word",
+		"Delete word",
+		"See all my words",
+		"Phrases to know",
+		"Return",
+	};
+	showOptions(5, options);
+}
+
+void showTestsMenu(void) {
+	char options[4][SIZE_OPTION] = {
+		"Study words",
+		"Study phrases",
+		"Reading activities",
+		"Return"
+	};
+	showOptions(4, options);
+}
+
+void showReadingMenu(void) {
+	char options[5][SIZE_OPTION] = {
+		"Beginner Level",
+		"Intermediate Level",
+		"Advanced Level",
+		"See your comments",
+		"Return",
+	};
+	showOptions(5, options);
+}
+
+// ########################################################## 
+// WORD AND PHRASES FUNCTIONS
+// ##########################################################
+
+void createNewWord( int quantityOfWordsSaved, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH]) {
+	char word[WORDLENGTH];
+	char wordInSpanish[WORDLENGTH];
+	
+	printf("Enter your new word: ");
+	scanf("%s", word);
+	
+	printf("Enter the meaning of the word: ");
+	scanf("%s", wordInSpanish);
+	
+	if ( quantityOfWordsSaved == WORDSQUANTITY - 1 ) {
+		printf("The dictionary words is already full\n");
+		return;
+	}
+	
+	printf("The word saved correctly\n\n");
+	
+	strcpy(words[quantityOfWordsSaved], word);
+	strcpy(wordsInSpanish[quantityOfWordsSaved], wordInSpanish);
+	
+	system("cls");
+}
+
+void deleteWordRecursive(int index, int quantityOfWordsSaved, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH]) {
+    if (index >= quantityOfWordsSaved) return;
+    strcpy(words[index], words[index + 1]);
+    strcpy(wordsInSpanish[index], wordsInSpanish[index + 1]);
+    deleteWordRecursive(index + 1, quantityOfWordsSaved, words, wordsInSpanish);
+}
+
+void deleteWord( int quantityOfWordsSaved, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH]  ) {
+	int indexToDelete;	
+	indexToDelete = validateValueInRange( 1, quantityOfWordsSaved, 9999, "Enter word id to delete (9999 TO QUIT): ", "The value is not allowed" );
+	if( indexToDelete == 9999 ) return; 
+	indexToDelete--;
+	
+	deleteWordRecursive(indexToDelete, quantityOfWordsSaved, words, wordsInSpanish );
+	
+	printf(NEON_BLUE "\nThe world was deleted correctly\n\n" RESET );	
+}
+
+void showSavedWords( int quantityOfWordsSaved, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH]) {
+	system("cls");
+	printHeader(40, "YOUR SAVED WORDS");
+	
+	int i;
+	for ( i = 0; i < quantityOfWordsSaved; i++ ) {
+		printf(NEON_PURPLE "%d. %3s -------- " RESET, i+1, words[i] );
+		printf(NEON_BLUE "%3s\n" RESET, wordsInSpanish[i] );
+	}	
+	printf("\n");
+}
+
+void showOnePhraseToKnow( int quantityPhrases, char phrases[quantityPhrases][WORDLENGTH],  char phrasesInSpanish[QUANTITYPHRASES][WORDLENGTH] ) {
+	system("cls");
+	printHeader(40, "HERE YOU GO A NEW PHRASE");
+	int randomNum = rand() % quantityPhrases;
+	
+	printf( NEON_BLUE "%5s", phrases[randomNum] );
+	printf(  "-------- %s\n\n" RESET, phrasesToKnowInSpanish[randomNum] );
+}
+
+// ########################################################## 
+// TESTS FUNCTIONS
+// ##########################################################
+
+void studyWords( int quantityOfWordsSaved, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH] ) {
+	while (getchar() != '\n');   // Limpia caracteres previos en el buffer
+	if( quantityOfWordsSaved == 0 ) {
+		printf(RED "You need to create words to study\n\n" RESET );
+		return;
+	}
+
+	char userInput[WORDLENGTH];
+	
+	do {
+		int randomNumber = rand() % quantityOfWordsSaved;		
+		printf("\nHow do you write in English " NEON_BLUE "%s?\n" RESET, wordsInSpanish[randomNumber]);
+	
+		printf("Enter your answer (-1 to finish): ");
+		scanf(" %[^\n]s", userInput);	
+		
+		if ( strcmp(userInput, "-1") == 0  ) break;
+
+		int wordsEqual = strcmp(userInput, words[randomNumber]);
+		
+		if( wordsEqual == 0) {
+			printf(NEON_GREEN "\n\nCorrect. You won one point +1\n" RESET);
+			wordsCorrectCounter++;
+		} else {
+			printf(RED "\n\nIncorrect! ? The correct answer is: %s\n" RESET, words[randomNumber]);
+			wordIncorrectCounter--;
+		}	
+		
+	} while( strcmp(userInput, "-1") != 0 );
+	
+	quantityOfTestsWords++;
+	system("cls");
+}
+
+void studyPhrases (char phrases[QUANTITYPHRASES][WORDLENGTH], char phrasesInSpanish[QUANTITYPHRASES][WORDLENGTH] ) {
+	int counterCurrentTest;
+	int i, randomNumberQuestion, randomPositionAnswer;
+	int questions[QUANTITYQUESTIONSPHRASES] = {0, 0, 0, 0, 0};
+	
+	for ( i = 0; i < QUANTITYQUESTIONSPHRASES; i++ ) {		
+		int userInput;
+		char options[QUANTITYQUESTIONOPTIONS][WORDLENGTH] = {0, 0, 0, 0};
+		
+		do {
+			randomNumberQuestion = rand() % QUANTITYPHRASES;		
+		} while( isValueInArray(randomNumberQuestion, QUANTITYQUESTIONSPHRASES, questions) == 1);
+	
+		questions[i] = randomNumberQuestion;
+		printf("\n%d. What is the meaning of: " NEON_BLUE "%s?\n\n" RESET, i + 1, phrases[randomNumberQuestion] );
+		
+		randomPositionAnswer = rand() % QUANTITYQUESTIONOPTIONS;
+		strcpy(options[randomPositionAnswer], phrasesInSpanish[randomNumberQuestion]);	 
+		
+		int i;
+		for ( i = 0; i < QUANTITYQUESTIONOPTIONS; i++ ) {
+			if ( i != randomPositionAnswer ) {
+				int randomOption;
+				char randomPhrase[WORDLENGTH];
+				
+				do {
+					randomOption = rand() % QUANTITYPHRASES;	
+					strcpy(randomPhrase, phrasesInSpanish[randomOption]);	
+				} while( 
+					randomOption == randomNumberQuestion || 					
+					isWordInArray( randomPhrase, QUANTITYQUESTIONOPTIONS, options ) == 1 
+				);
+				
+				strcpy(options[i], phrasesInSpanish[randomOption]);
+			}
+			printf("%d. %s\n", i + 1, options[i]);
+		}
+	
+		userInput = validateChosenMenuOption(1, QUANTITYQUESTIONOPTIONS);
+			
+		if ( randomPositionAnswer == userInput - 1 ) {
+			printf(NEON_GREEN "\nCORRECT --- +1 POINT\n" RESET);
+			counterRightQuestions++;
+			counterCurrentTest++;
+		} else {
+			printf(RED "\nINCORRECT --- -1 POINT\n");
+			printf("The correct is: %s\n" RESET, phrasesInSpanish[randomNumberQuestion] );
+			counterIncorrectQuestions--;
 		}
 	}
 	
-	printf("+\n" RESET);
+	testsResults[quantityOfTestsPhrases] = counterCurrentTest;
+	quantityOfTestsPhrases++;
+	printf("\n");
 }
 
-void printRow( char *row[], int columnsWidths[], int numColumns ) {
-	int i;
-	for ( i = 0; i < numColumns; i++ ) {
-		printf("| %-*s", columnsWidths[i] - 1, row[i] );
-	}
-	printf("|\n");
+void readingActivities( char lectures[QUANTITYLECTURES][3][LECTURELENGTH] ) {
+	while (getchar() != '\n');
+	system("cls");
+	int chosenOption, index, exit = 0;
+	
+	do {
+		printHeader(40, "READ EVERYDAY");
+		showReadingMenu();
+		chosenOption = validateChosenMenuOption(1, 5);
+		system("cls");
+		
+		switch( chosenOption ) {
+			case 1: case 2: case 3:
+				index = chosenOption - 1;
+				showLecture( lectures[index] );
+				incrementCounterLectures( index );
+				askForComment( comments, index, difficultyComment );
+				break;
+			case 4:
+				showComments( comments, difficultyComment );
+				break;
+			case 5:
+				exit = 1;
+				break;
+		}		
+	} while ( exit != 1 );
 }
+
+void showLecture( char text[3][LECTURELENGTH] ) {
+	printHeader(40, "");
+	int i;
+	for ( i = 0; i < 3; i++ ) {
+		if ( i == 0 ) {
+			printf(NEON_GREEN "%5s\n\n" RESET, text[i] );
+		} else {
+			printf("%5s\n\n", text[i] );
+		}
+	}
+}
+
+void incrementCounterLectures( int level ) {
+	switch( level ) {
+		case 0: counterLectureBeginner++; break;
+		case 1: counterLectureIntermediate++; break;
+		case 2: counterLectureAdvanced++; break;
+	}
+}
+
+void askForComment( char comments[QUANTITYCOMMENTS][COMMENTLENGTH], int difficulty, char difficultyComment[QUANTITYCOMMENTS][COMMENTLENGTH] ) {
+	while (getchar() != '\n');
+	char comment[COMMENTLENGTH];
+	
+	printf(NEON_BLUE "Write a comment about this lecture (-1 TO QUIT): " RESET );
+	scanf("%[^\n]s", comment);
+	
+	strcpy(comments[quantityComments], comment);
+	
+	if ( difficulty == 0 ) {
+		strcpy(difficultyComment[quantityComments], "Beginner");
+	} else if ( difficulty == 1 ) {
+		strcpy(difficultyComment[quantityComments], "Intermediate");	
+	} else {
+		strcpy(difficultyComment[quantityComments], "Advanced");
+	}
+
+	if ( strcmp(comment, "-1") == 0 || strcmp(comment, "") == 0 ) {
+		quantityNoComments--;
+		printf("\nKeep Practicing\n\n");
+	} else {
+		quantityComments++;
+		printf(NEON_GREEN "\nYou won one point +1" RESET);
+		printf(NEON_GREEN "\nTHANKS FOR YOUR COMMENT\n\n" RESET);	
+	}
+}
+
+void showComments( char comments[QUANTITYCOMMENTS][COMMENTLENGTH], char difficultyComment[QUANTITYCOMMENTS][COMMENTLENGTH] ) {
+	while (getchar() != '\n');
+	
+	printHeader(50, "COMMENTS ABOUT READING"); 
+	
+	if (quantityComments == 0) {
+		printf(RED "You have not created comments yet\n\n" RESET);
+		return;
+	} 
+	
+	int i;
+	for( i = 0; i < quantityComments; i++ ) {
+		printf("%d.", i + 1 );
+		printf(NEON_PURPLE "[%s LECTURE]" RESET, difficultyComment[i] );
+		printf("----- %s\n\n", comments[i]);
+	}
+	getchar();
+}
+
+// ########################################################## 
+// STADISTICS FUNCTIONS
+// ##########################################################
 
 void counterWordStadistics( void ){
 	int numColumns = 3;
@@ -229,6 +662,8 @@ void counterWordStadistics( void ){
 	
 	char quantityOfWordsSavedStr[2];
 	sprintf( quantityOfWordsSavedStr, "%d", quantityOfWordsSaved );
+	char quantityOfWordsDeleteStr[2];
+	sprintf( quantityOfWordsDeleteStr, "%d", quantityOfWordsDelete );
 	char quantityOfTestsWordsStr[2];
 	sprintf( quantityOfTestsWordsStr, "%d", quantityOfTestsWords );
 	char wordsCorrectCounterStr[2];
@@ -238,23 +673,24 @@ void counterWordStadistics( void ){
 	
 	float average = 0;
 	int sum = 0;
-	int values[4] = { quantityOfWordsSaved, quantityOfTestsWords, wordsCorrectCounter, wordIncorrectCounter }; 
+	int values[5] = { quantityOfWordsSaved, quantityOfWordsDelete, quantityOfTestsWords, wordsCorrectCounter, wordIncorrectCounter }; 
 	
-	sum = recursiveSum(values, 4);
+	sum = recursiveSum(values, 5);
 	char sumStr[2];
 	sprintf(sumStr, "%d", sum );
 	
-	average = recursiveAverage(values, 4);
+	average = recursiveAverage(values, 5);
 	char averageStr[2];
 	sprintf(averageStr, "%.2f", average );
 	
 	char *data[][3] = {
 		{"01", "Created Words",  quantityOfWordsSavedStr},
+		{"01", "Deleted Words",  quantityOfWordsDeleteStr},
 		{"02", "Tests-Words Taken",  quantityOfTestsWordsStr},
 		{"03", "Tests-Words Correct ",  wordsCorrectCounterStr},
 		{"04", "Tests-Words Incorrect",  wordIncorrectCounterStr},
 		{"--", "Sum", sumStr},
-		{"--", "Average",  averageStr},
+		{"--", "Average Productivity",  averageStr},
 	};
 	int numRows = sizeof( data ) / sizeof (data[0]);
 	int i;
@@ -297,7 +733,7 @@ void counterPhrasesStadistics( void ) {
 		{"02", "Tests-Phrases Correct",  counterRightQuestionsStr},
 		{"03", "Tests-Phrases Incorrect",  counterIncorrectQuestionsStr},
 		{"--", "Sum", sumStr},
-		{"--", "Average",  averageStr},
+		{"--", "Average Productivity",  averageStr},
 	};
 	int numRows = sizeof( data ) / sizeof (data[0]);
 	int i;
@@ -328,7 +764,7 @@ void counterReadingStadistics( void ) {
 	sprintf(counterLectureAdvancedStr, "%d", counterLectureAdvanced );
 	
 	float average = 0;
-	int sum = 0;
+	int sum = 0, i;
 	int values[5] = { quantityComments, quantityNoComments, counterLectureBeginner, counterLectureIntermediate, counterLectureAdvanced }; 
 	
 	sum = recursiveSum(values, 5);
@@ -346,10 +782,10 @@ void counterReadingStadistics( void ) {
 		{"04", "Reading Intermediate",  counterLectureIntermediateStr},
 		{"05", "Reading Advanced",  counterLectureAdvancedStr},
 		{"--", "Sum", sumStr},
-		{"--", "Average",  averageStr},
+		{"--", "Average Productivity",  averageStr},
 	};
+	
 	int numRows = sizeof( data ) / sizeof (data[0]);
-	int i;
 	for( i = 0; i < numRows; i++ ) {
 		printRow( data[i], columnsWidths, numColumns );
 	}
@@ -357,17 +793,98 @@ void counterReadingStadistics( void ) {
 	printf("\n");
 }
 
-void stadisticsScreen() {
-	system("cls");
-	while (getchar() != '\n'); 
-	printHeader(40, "STADISTICS ABOUT YOUR PROGRESS");
+void summaryTests( void ) {
+
+	int numColumns = 3;
+	int columnsWidths[] = {15, 25, 15};
+	char *headers[]= {"Test No", "Result", "Score"};
+		
+	printSeparator(columnsWidths, numColumns);
+	printRow( headers, columnsWidths, numColumns );
+	printSeparator(columnsWidths, numColumns);
 	
-	counterWordStadistics();
-	counterPhrasesStadistics();
-	counterReadingStadistics();
+	int i;
+	float sum = 0;
+	for( i = 0; i < quantityOfTestsPhrases; i++ ) {
+		char iStr[2];	
+		sprintf(iStr, "%d", i + 1 );
+		
+		char resultTestStr[2];
+		sprintf(resultTestStr, "%d / 5", testsResults[i]);
+		
+		float score = testsResults[i] * 10 / 5;
+		char scoreStr[2];
+		sprintf(scoreStr, "%.2f", score);
+		
+		sum += score;
+		
+		char *row[] = {iStr, resultTestStr, scoreStr};
+		printRow( row, columnsWidths, numColumns );
+	}
 	
-	printf("\nPress enter to return\n\n");
-	getchar();
+	if (quantityOfTestsPhrases > 0) {
+		float average = sum / quantityOfTestsPhrases;
+		char averageStr[2];
+		sprintf(averageStr, "%.2f", average);
+		char *finalRow[] = {"--", "Average Productivity",  averageStr};
+		printRow( finalRow, columnsWidths, numColumns );	
+	}
+	
+	printSeparator(columnsWidths, numColumns);
+	
+}
+
+// ########################################################## 
+// STADISTICS FUNCTIONS
+// ##########################################################
+
+void printHeader( int size, char message[] ) {
+	int i;
+	for ( i = size; i > 0; i-- ) printf("-"); 
+	printf(NEON_GREEN "\n%s\n" RESET, message);
+	for ( i = size; i > 0; i-- ) printf("-"); 
+	printf("\n\n");
+}
+
+void printSeparator( int columnsWidths[], int numColumns ) { 
+	printf(NEON_BLUE);
+	int i;
+	for ( i = 0; i < numColumns; i++ ) {
+		printf("+");
+		int j;
+		for( j = 0; j < columnsWidths[i]; j++ ) {
+			printf("-");
+		}
+	}
+	
+	printf("+\n" RESET);
+}
+
+void printRow( char *row[], int columnsWidths[], int numColumns ) {
+	int i;
+	for ( i = 0; i < numColumns; i++ ) {
+		printf("| %-*s", columnsWidths[i] - 1, row[i] );
+	}
+	printf("|\n");
+}
+
+void showOptions( int numberOfOptions, char options[numberOfOptions][SIZE_OPTION]) {
+	int i;
+	for( i = 0; i < numberOfOptions; i++ ) {
+		printf( NEON_PURPLE "[%d]. " RESET, i + 1);	
+		printf( "%s\n", options[i] );
+	}
+}
+
+int recursiveSum( int arr[], int n ) {
+	if ( n == 0 ) return 0;
+	return arr[ n - 1 ] + recursiveSum( arr, n - 1 ); // Recursive calls
+}
+
+float recursiveAverage( int arr[], int n ) {
+	if ( n == 0 ) return 0;
+	int sum = recursiveSum( arr, n );
+	return (float) sum / n;
 }
 
 int validateChosenMenuOption( int lower, int upper ) {
@@ -382,281 +899,6 @@ int validateChosenMenuOption( int lower, int upper ) {
 	} while( option < lower || option > upper );
 	
 	return option;
-}
-
-void printHeader( int size, char message[] ) {
-	int i;
-	for ( i = size; i > 0; i-- ) printf("-"); 
-	printf(NEON_GREEN "\n%s\n" RESET, message);
-	for ( i = size; i > 0; i-- ) printf("-"); 
-	printf("\n\n");
-}
-
-void showOptions( int numberOfOptions, char options[numberOfOptions][SIZE_OPTION]) {
-	int i;
-	for( i = 0; i < numberOfOptions; i++ ) {
-		printf( NEON_PURPLE "[%d]. " RESET, i + 1);	
-		printf( "%s\n", options[i] );
-	}
-}
-
-void showMenu( void ) {
-	system("cls");
-	printHeader(30, "OPTIONS MENU");
-	char options[4][SIZE_OPTION] = {
-		"Words and Phrases",
-		"Tests Activities",
-		"Stadistics",
-		"Exit",
-	};
-	showOptions(4, options);
-}
-
-void showWordsAndPhrasesMenu( void ) {
-	char options[4][SIZE_OPTION] = {
-		"Create new word",
-		"See all my words",
-		"Phrases to know",
-		"Return",
-	};
-	showOptions(4, options);
-}
-
-void showTestsMenu(void) {
-	char options[4][SIZE_OPTION] = {
-		"Study words",
-		"Study phrases",
-		"Reading activities",
-		"Return"
-	};
-	showOptions(4, options);
-}
-
-void showReadingMenu(void) {
-	char options[3][SIZE_OPTION] = {
-		"Beginner Level",
-		"Intermediate Level",
-		"Advanced Level",
-	};
-	showOptions(3, options);
-}
-
-void welcomeScreen( void ) {	
-	printHeader(40, "ENGLISH LANGUAGE LEARNING SYSTEM");
-	
-	char uta[6][50] = {
-     	"  _      _                   _ ",
-        " | |    (_)                 | |",
-        " | |     _ _ __  _ __  _   _| |",
-        " | |    | | '_ \\| '_ \\| | | |",
-        " | |____| | | | | | | | |_| | |",
-        " |______|_|_| |_|_| |_|\\__,_|_|",
-    };
-    
-    int i;
-    for (i = 0; i < 6; i++) {        
-        printf(NEON_PURPLE "%s\n", uta[i]);
-    }
-    
-	printf(RESET "\n\nPress Enter to continue...");
-    getchar();
-}
-
-void wordsAndPhrasesScreen( void ) {
-	
-	system("cls");
-	
-	int exit = 0;
-	int chosenOption;
-	
-	do {
-		printHeader(40, "WORDS AND PHRASES");
-		showWordsAndPhrasesMenu();
-		chosenOption = validateChosenMenuOption(1, 4);
-		
-		switch( chosenOption ) {
-			case 1: 
-				createNewWord( quantityOfWordsSaved, words, wordsInSpanish);
-				quantityOfWordsSaved++;
-				break;
-			case 2:
-				showSavedWords( quantityOfWordsSaved, words, wordsInSpanish);
-				break;
-			case 3:
-				showOnePhraseToKnow( QUANTITYPHRASES, phrasesToKnow, phrasesToKnowInSpanish );
-				break;
-			case 4:
-				exit = 1;
-				break;
-		}
-	} while( exit != 1 );
-
-}
-
-void createNewWord( int quantityOfWordsSaved, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH]) {
-	char word[WORDLENGTH];
-	char wordInSpanish[WORDLENGTH];
-	
-	printf("Enter your new word: ");
-	scanf("%s", word);
-	
-	printf("Enter the meaning of the word: ");
-	scanf("%s", wordInSpanish);
-	
-	if ( quantityOfWordsSaved == WORDSQUANTITY - 1 ) {
-		printf("The dictionary words is already full\n");
-		return;
-	}
-	
-	printf("The word saved correctly\n\n");
-	
-	strcpy(words[quantityOfWordsSaved], word);
-	strcpy(wordsInSpanish[quantityOfWordsSaved], wordInSpanish);
-	
-	system("cls");
-}
-
-void showSavedWords( int quantityOfWordsSaved, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH]) {
-	system("cls");
-	printHeader(40, "YOUR SAVED WORDS");
-	
-	if( quantityOfWordsSaved == 0 ) {
-		printf(RED "You have not created words yet\n\n" RESET );
-		return;
-	}
-	
-	int i;
-	for ( i = 0; i < quantityOfWordsSaved; i++ ) {
-		printf(NEON_PURPLE "%d. %3s -------- " RESET, i+1, words[i] );
-		printf(NEON_BLUE "%3s\n" RESET, wordsInSpanish[i] );
-	}	
-	printf("\n");
-}
-
-void showOnePhraseToKnow( int quantityPhrases, char phrases[quantityPhrases][WORDLENGTH],  char phrasesInSpanish[QUANTITYPHRASES][WORDLENGTH] ) {
-	system("cls");
-	printHeader(40, "HERE YOU GO A NEW PHRASE");
-	int randomNum = rand() % quantityPhrases;
-	
-	printf( NEON_BLUE "%5s", phrases[randomNum] );
-	printf(  "-------- %s\n\n" RESET, phrasesToKnowInSpanish[randomNum] );
-}
-
-void testsScreen( void ) {
-	system("cls");
-	
-	int exit = 0;
-	int chosenOption;
-	
-	do {	
-		printHeader(40, "TRY TESTS AND IMPROVE");
-		showTestsMenu();
-		chosenOption = validateChosenMenuOption(1, 4);
-		
-		switch(chosenOption) {
-			case 1:				
-				studyWords( quantityOfWordsSaved, words, wordsInSpanish );
-				break;
-			case 2:
-				studyPhrases( phrasesToKnow, phrasesToKnowInSpanish );
-				break;
-			case 3:
-				readingActivities( lectures );
-				break;
-			case 4:
-				exit = 1;
-				break;
-		}
-	} while( exit != 1 );
-	
-}
-
-void showLecture( char text[3][LECTURELENGTH] ) {
-	printHeader(40, "");
-	int i;
-	for ( i = 0; i < 3; i++ ) {
-		if ( i == 0 ) {
-			printf(NEON_GREEN "%5s\n\n" RESET, text[i] );
-		} else {
-			printf("%5s\n\n", text[i] );
-		}
-	}
-}
-
-void askForComment( char comments[QUANTITYCOMMENTS][COMMENTLENGTH] ) {
-	while (getchar() != '\n'); 
-	char comment[COMMENTLENGTH];
-	
-	printf(NEON_BLUE "Write a comment about this lecture (-1 TO QUIT): " RESET );
-	scanf("%[^\n]s", comment);
-	
-	strcpy(comments[quantityComments], comment);
-	
-	if ( strcmp(comment, "-1") == 0 || strcmp(comment, "") == 0 ) {
-		quantityNoComments--;
-		printf("\nKeep Practicing\n\n");
-	} else {
-		quantityComments++;
-		printf(NEON_GREEN "\nYou won one point +1" RESET);
-		printf(NEON_GREEN "\nTHANKS FOR YOUR COMMENT\n\n" RESET);	
-	}
-}
-
-void incrementCounterLectures( int level ) {
-	switch( level ) {
-		case 0: counterLectureBeginner++; break;
-		case 1: counterLectureIntermediate++; break;
-		case 2: counterLectureAdvanced++; break;
-	}
-}
-
-void readingActivities( char lectures[QUANTITYLECTURES][3][LECTURELENGTH] ) {
-	system("cls");
-	printHeader(40, "READ EVERYDAY");
-	
-	int chosenOption, index;
-	showReadingMenu();
-	chosenOption = validateChosenMenuOption(1, 3);
-	index = chosenOption - 1;
-	
-	system("cls");
-	showLecture( lectures[index] );
-	incrementCounterLectures( index );
-	askForComment( lectures );
-}
-
-void studyWords( int quantityOfWordsSaved, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH] ) {
-	while (getchar() != '\n');   // Limpia caracteres previos en el buffer
-	if( quantityOfWordsSaved == 0 ) {
-		printf(RED "You need to create words to study\n\n" RESET );
-		return;
-	}
-
-	char userInput[WORDLENGTH];
-	
-	do {
-		int randomNumber = rand() % quantityOfWordsSaved;		
-		printf("\nHow do you write in English " NEON_BLUE "%s?\n" RESET, wordsInSpanish[randomNumber]);
-	
-		printf("Enter your answer (-1 to finish): ");
-		scanf(" %[^\n]s", userInput);	
-		
-		if ( strcmp(userInput, "-1") == 0  ) break;
-
-		int wordsEqual = strcmp(userInput, words[randomNumber]);
-		
-		if( wordsEqual == 0) {
-			printf(NEON_GREEN "\n\nCorrect. You won one point +1\n" RESET);
-			wordsCorrectCounter++;
-		} else {
-			printf(RED "\n\nIncorrect! ? The correct answer is: %s\n" RESET, words[randomNumber]);
-			wordIncorrectCounter--;
-		}	
-		
-	} while( strcmp(userInput, "-1") != 0 );
-	
-	quantityOfTestsWords++;
-	system("cls");
 }
 
 int isValueInArray( int value, int size, int arr[] ) {
@@ -675,55 +917,17 @@ int isWordInArray( char word[], int size, char words[QUANTITYQUESTIONOPTIONS][WO
 	return 0;
 }
 
-void studyPhrases (char phrases[QUANTITYPHRASES][WORDLENGTH], char phrasesInSpanish[QUANTITYPHRASES][WORDLENGTH] ) {
-	int i, randomNumberQuestion, randomPositionAnswer;
-	int questions[QUANTITYQUESTIONSPHRASES] = {0, 0, 0, 0, 0};
+int validateValueInRange( int lowerBound, int upperBound, int flagValue, char message[], char errorMessage[] ) {
+	int value;
 	
-	for ( i = 0; i < QUANTITYQUESTIONSPHRASES; i++ ) {		
-		int userInput;
-		char options[QUANTITYQUESTIONOPTIONS][WORDLENGTH] = {0, 0, 0, 0};
+	do {
+		printf("%s", message );
+		scanf("%d", &value );
 		
-		do {
-			randomNumberQuestion = rand() % QUANTITYPHRASES;		
-		} while( isValueInArray(randomNumberQuestion, QUANTITYQUESTIONSPHRASES, questions) == 1);
-	
-		questions[i] = randomNumberQuestion;
-		printf("\n%d. What is the meaning of: " NEON_BLUE "%s?\n\n" RESET, i + 1, phrases[randomNumberQuestion] );
+		if ( value == flagValue ) return 9999;
+		if ( value < lowerBound || value > upperBound ) printf("%s\n\n", errorMessage );
 		
-		randomPositionAnswer = rand() % QUANTITYQUESTIONOPTIONS;
-		strcpy(options[randomPositionAnswer], phrasesInSpanish[randomNumberQuestion]);	 
-		
-		int i;
-		for ( i = 0; i < QUANTITYQUESTIONOPTIONS; i++ ) {
-			if ( i != randomPositionAnswer ) {
-				int randomOption;
-				char randomPhrase[WORDLENGTH];
-				
-				do {
-					randomOption = rand() % QUANTITYPHRASES;	
-					strcpy(randomPhrase, phrasesInSpanish[randomOption]);	
-				} while( 
-					randomOption == randomNumberQuestion || 					
-					isWordInArray( randomPhrase, QUANTITYQUESTIONOPTIONS, options ) == 1 
-				);
-				
-				strcpy(options[i], phrasesInSpanish[randomOption]);
-			}
-			printf("%d. %s\n", i + 1, options[i]);
-		}
+	} while( value < lowerBound || value > upperBound );
 	
-		userInput = validateChosenMenuOption(1, QUANTITYQUESTIONOPTIONS);
-			
-		if ( randomPositionAnswer == userInput - 1 ) {
-			printf(NEON_GREEN "\n\nCORRECT --- +1 POINT\n" RESET);
-			counterRightQuestions++;
-		} else {
-			printf(RED "\n\nINCORRECT --- -1 POINT\n" RESET);
-			counterIncorrectQuestions--;
-		}
-	}
-	
-	testsResults[quantityOfTestsPhrases] = counterRightQuestions;
-	quantityOfTestsPhrases++;
-	printf("\n");
+	return value;
 }
