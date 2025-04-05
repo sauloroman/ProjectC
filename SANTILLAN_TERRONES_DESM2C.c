@@ -240,7 +240,7 @@ void welcomeScreen( void ) {
         printf(NEON_PURPLE "%s\n", uta[i]);
     }
     
-    printf(NEON_BLUE "Developer 1: Saulo Román Santillán Nava\n");
+    printf(NEON_BLUE "\n\nDeveloper 1: Saulo Román Santillán Nava\n");
     printf(NEON_BLUE "Developer 2: Luis Javier Terrones Muñoz\n");
 	printf(RESET "\n\nPress Enter to continue...");
     getchar();
