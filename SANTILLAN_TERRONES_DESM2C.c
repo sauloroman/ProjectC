@@ -13,18 +13,27 @@
 #define WORDSQUANTITY 20
 #define WORDLENGTH 200
 #define QUANTITYPHRASES 15
-#define QUANTITYQUESTIONSPHRASES 4
+#define QUANTITYQUESTIONSPHRASES 5
+#define QUANTITYQUESTIONOPTIONS 4
 #define QUANTITYOFTESTS 100
 #define QUANTITYOFLECTURES 3
 #define LECTURELENGTH 1000
+#define QUANTITYLECTURES 3
+#define QUANTITYCOMMENTS 10
+#define COMMENTLENGTH 200
 
 char words[WORDSQUANTITY][WORDLENGTH];
 char wordsInSpanish[WORDSQUANTITY][WORDLENGTH];
+char comments[QUANTITYCOMMENTS][COMMENTLENGTH];
 int testsResults[QUANTITYOFTESTS];
 
 int quantityOfWordsSaved = 0;
-int quantityOfTestsPhrasesDone = 0;
+int quantityOfTestsWords = 0;
+int quantityOfTestsPhrases = 0;
 int wordsCorrectCounter = 0, wordIncorrectCounter = 0;
+int quantityComments = 0, quantityNoComments = 0;
+int counterRightQuestions = 0, counterIncorrectQuestions = 0;
+int counterLectureBeginner = 0, counterLectureIntermediate = 0, counterLectureAdvanced = 0;
 
 char phrasesToKnow[QUANTITYPHRASES][WORDLENGTH] = {
 	"What's up?",  
@@ -44,6 +53,7 @@ char phrasesToKnow[QUANTITYPHRASES][WORDLENGTH] = {
 	"Salty",  
 	"Vibe check"
 };
+
 char phrasesToKnowInSpanish[QUANTITYPHRASES][WORDLENGTH] = {
     "¿Qué onda? / ¿Qué tal?",
     "¡No te preocupes! / Todo bien.",
@@ -62,24 +72,24 @@ char phrasesToKnowInSpanish[QUANTITYPHRASES][WORDLENGTH] = {
     "Ardido / Enojado.",
     "¿Buena vibra o no?"
 };
-char readingBeginner[3][LECTURELENGTH] = {
-	"A Day at the Park",
-	"Tom loves going to the park. Every Saturday, he wakes up early and eats breakfast. Then, he takes his dog, Max, and walks to the park. Max loves to run and play with other dogs. Tom likes to sit on a bench and read a book. Sometimes, he brings a sandwich and eats lunch there. The park is beautiful, with many trees and flowers.",
-	"Birds sing in the trees, and children play on the swings. Tom enjoys the fresh air and the warm sunshine. After a few hours, he and Max start walking home. On the way, they stop at a small shop to buy some ice cream. When they arrive home, they feel happy and relaxed, ready for another great weekend."
-};
 
-char readingIntermediate[3][LECTURELENGTH] = {
-	"The Mysterious Letter",
-	"Sarah found an old letter in her grandmother’s attic. The paper was yellow, and the ink was faded. She carefully opened it and started reading. 'Dear Alice,' it began, 'I have hidden the treasure where the old oak tree stands.' Sarah’s heart started beating fast. Was this a real treasure map? She remembered a huge oak tree in the garden.",
-	"Excited, she ran outside and started digging near its roots. The sun was setting, and the air was cool. After a few minutes, her shovel hit something hard. She dug faster and finally uncovered a small wooden box. With shaking hands, she opened it… and inside, she found old photographs and a golden locket. It wasn’t gold coins, but it was still a treasure—her family’s lost memories. She smiled, realizing that sometimes, the most valuable things aren’t gold or money, but the stories and love we share."
+char lectures[QUANTITYLECTURES][3][LECTURELENGTH] = {
+	{
+		"A Day at the Park",
+		"Tom loves going to the park. Every Saturday, he wakes up early and eats breakfast. Then, he takes his dog, Max, and walks to the park. Max loves to run and play with other dogs. Tom likes to sit on a bench and read a book. Sometimes, he brings a sandwich and eats lunch there. The park is beautiful, with many trees and flowers.",
+		"Birds sing in the trees, and children play on the swings. Tom enjoys the fresh air and the warm sunshine. After a few hours, he and Max start walking home. On the way, they stop at a small shop to buy some ice cream. When they arrive home, they feel happy and relaxed, ready for another great weekend."
+	},
+	{
+		"The Mysterious Letter",
+		"Sarah found an old letter in her grandmother’s attic. The paper was yellow, and the ink was faded. She carefully opened it and started reading. 'Dear Alice,' it began, 'I have hidden the treasure where the old oak tree stands.' Sarah’s heart started beating fast. Was this a real treasure map? She remembered a huge oak tree in the garden.",
+		"Excited, she ran outside and started digging near its roots. The sun was setting, and the air was cool. After a few minutes, her shovel hit something hard. She dug faster and finally uncovered a small wooden box. With shaking hands, she opened it… and inside, she found old photographs and a golden locket. It wasn’t gold coins, but it was still a treasure—her family’s lost memories. She smiled, realizing that sometimes, the most valuable things aren’t gold or money, but the stories and love we share."
+	},
+	{
+		"The Time Traveler’s Dilemma",
+		"Dr. James Carter had spent years working on his time machine. Finally, on a cold December night, he activated it. The machine whirred, and in seconds, he found himself in the year 1850. He looked around in amazement—horse-drawn carriages, gas lamps, and people dressed in old-fashioned clothes. But something was wrong. His machine was gone! He panicked. Without it, he was stuck in the past forever.",
+		"James took a deep breath and tried to think. He needed tools, but modern technology didn’t exist yet. He walked through the town, observing blacksmiths, carpenters, and engineers. Perhaps he could use their skills to rebuild the machine. But how would he explain his knowledge? Would they believe him? As he sat in a quiet alley, he realized that history was watching him. If he made one mistake, he could change the future forever."
+	}	
 };
-
-char readingAdvanced[3][LECTURELENGTH] = {
-	"The Time Traveler’s Dilemma",
-	"Dr. James Carter had spent years working on his time machine. Finally, on a cold December night, he activated it. The machine whirred, and in seconds, he found himself in the year 1850. He looked around in amazement—horse-drawn carriages, gas lamps, and people dressed in old-fashioned clothes. But something was wrong. His machine was gone! He panicked. Without it, he was stuck in the past forever.",
-	"James took a deep breath and tried to think. He needed tools, but modern technology didn’t exist yet. He walked through the town, observing blacksmiths, carpenters, and engineers. Perhaps he could use their skills to rebuild the machine. But how would he explain his knowledge? Would they believe him? As he sat in a quiet alley, he realized that history was watching him. If he made one mistake, he could change the future forever."
-};
-
 
 // Function declarations
 void printHeader( int size, char message[]);
@@ -121,11 +131,25 @@ void studyPhrases (
 	char phrases[QUANTITYPHRASES][WORDLENGTH],  
 	char phrasesInSpanish[QUANTITYPHRASES][WORDLENGTH] 
 );
-void readingActivities( char textBeginner[2][LECTURELENGTH], char textIntermediate[2][LECTURELENGTH], char textAdvanced[2][LECTURELENGTH] );
+void readingActivities( char lectures[QUANTITYLECTURES][3][LECTURELENGTH] );
+void showLecture( char text[3][LECTURELENGTH] );
+void askForComment( char comments[QUANTITYCOMMENTS][COMMENTLENGTH] );
+void incrementCounterLectures( int level );
+
+// Stadistics Functions
+void stadisticsScreen( void );
+void printSeparator( int columnsWidths[], int numColumns );
+void printRow( char *row[], int columnsWidths[], int numColumns );
+void counterWordStadistics( void );
+void counterPhrasesStadistics( void );
+void counterReadingStadistics( void );
 
 // Helper functions
 int validateChosenMenuOption( int lowerBound, int upperBound );
 int isValueInArray( int value, int size, int arr[] );
+int isWordInArray( char word[], int size, char words[QUANTITYQUESTIONOPTIONS][WORDLENGTH] );
+int recursiveSum( int arr[], int n );
+float recursiveAverage( int arr[], int n );
 
 int main ( void ) {
 	
@@ -149,6 +173,7 @@ int main ( void ) {
 				testsScreen();
 				break;
 			case 3:
+				stadisticsScreen();
 				break;
 			case 4:
 				exit = 1; 
@@ -159,6 +184,190 @@ int main ( void ) {
 	
 	
 	return 0;
+}
+
+int recursiveSum( int arr[], int n ) {
+	if ( n == 0 ) return 0;
+	return arr[ n - 1 ] + recursiveSum( arr, n - 1 ); // Recursive calls
+}
+
+float recursiveAverage( int arr[], int n ) {
+	if ( n == 0 ) return 0;
+	int sum = recursiveSum( arr, n );
+	return (float) sum / n;
+}
+
+void printSeparator( int columnsWidths[], int numColumns ) { 
+	printf(NEON_BLUE);
+	int i;
+	for ( i = 0; i < numColumns; i++ ) {
+		printf("+");
+		int j;
+		for( j = 0; j < columnsWidths[i]; j++ ) {
+			printf("-");
+		}
+	}
+	
+	printf("+\n" RESET);
+}
+
+void printRow( char *row[], int columnsWidths[], int numColumns ) {
+	int i;
+	for ( i = 0; i < numColumns; i++ ) {
+		printf("| %-*s", columnsWidths[i] - 1, row[i] );
+	}
+	printf("|\n");
+}
+
+void counterWordStadistics( void ){
+	int numColumns = 3;
+	int columnsWidths[] = {5, 25, 15};
+	char *headers[]= {"No.", "Word Concept", "Quantity"};
+	printSeparator(columnsWidths, numColumns);
+	printRow( headers, columnsWidths, numColumns );
+	printSeparator(columnsWidths, numColumns);
+	
+	char quantityOfWordsSavedStr[2];
+	sprintf( quantityOfWordsSavedStr, "%d", quantityOfWordsSaved );
+	char quantityOfTestsWordsStr[2];
+	sprintf( quantityOfTestsWordsStr, "%d", quantityOfTestsWords );
+	char wordsCorrectCounterStr[2];
+	sprintf(wordsCorrectCounterStr, "%d", wordsCorrectCounter );
+	char wordIncorrectCounterStr[2];
+	sprintf(wordIncorrectCounterStr, "%d", wordIncorrectCounter );
+	
+	float average = 0;
+	int sum = 0;
+	int values[4] = { quantityOfWordsSaved, quantityOfTestsWords, wordsCorrectCounter, wordIncorrectCounter }; 
+	
+	sum = recursiveSum(values, 4);
+	char sumStr[2];
+	sprintf(sumStr, "%d", sum );
+	
+	average = recursiveAverage(values, 4);
+	char averageStr[2];
+	sprintf(averageStr, "%.2f", average );
+	
+	char *data[][3] = {
+		{"01", "Created Words",  quantityOfWordsSavedStr},
+		{"02", "Tests-Words Taken",  quantityOfTestsWordsStr},
+		{"03", "Tests-Words Correct ",  wordsCorrectCounterStr},
+		{"04", "Tests-Words Incorrect",  wordIncorrectCounterStr},
+		{"--", "Sum", sumStr},
+		{"--", "Average",  averageStr},
+	};
+	int numRows = sizeof( data ) / sizeof (data[0]);
+	int i;
+	for( i = 0; i < numRows; i++ ) {
+		printRow( data[i], columnsWidths, numColumns );
+	}
+	printSeparator(columnsWidths, numColumns);
+	printf("\n");
+}
+
+void counterPhrasesStadistics( void ) {
+	int numColumns = 3;
+	int columnsWidths[] = {5, 25, 15};
+	char *headers[]= {"No.", "Phrase Concept", "Quantity"};
+	printSeparator(columnsWidths, numColumns);
+	printRow( headers, columnsWidths, numColumns );
+	printSeparator(columnsWidths, numColumns);
+	
+	char quantityOfTestsPhrasesStr[2];
+	sprintf( quantityOfTestsPhrasesStr, "%d", quantityOfTestsPhrases );
+	char counterRightQuestionsStr[2];
+	sprintf(counterRightQuestionsStr, "%d", counterRightQuestions );
+	char counterIncorrectQuestionsStr[2];
+	sprintf(counterIncorrectQuestionsStr, "%d", counterIncorrectQuestions );
+	
+	float average = 0;
+	int sum = 0;
+	int values[3] = { quantityOfTestsPhrases, counterRightQuestions, counterIncorrectQuestions }; 
+	
+	sum = recursiveSum(values, 3);
+	char sumStr[2];
+	sprintf(sumStr, "%d", sum );
+	
+	average = recursiveAverage(values, 3);
+	char averageStr[2];
+	sprintf(averageStr, "%.2f", average );
+	
+	char *data[][3] = {
+		{"01", "Tests-Phrases Taken",  quantityOfTestsPhrasesStr},
+		{"02", "Tests-Phrases Correct",  counterRightQuestionsStr},
+		{"03", "Tests-Phrases Incorrect",  counterIncorrectQuestionsStr},
+		{"--", "Sum", sumStr},
+		{"--", "Average",  averageStr},
+	};
+	int numRows = sizeof( data ) / sizeof (data[0]);
+	int i;
+	for( i = 0; i < numRows; i++ ) {
+		printRow( data[i], columnsWidths, numColumns );
+	}
+	printSeparator(columnsWidths, numColumns);
+	printf("\n");
+}
+
+void counterReadingStadistics( void ) {
+	int numColumns = 3;
+	int columnsWidths[] = {5, 25, 15};
+	char *headers[]= {"No.", "Reading Concept", "Quantity"};
+	printSeparator(columnsWidths, numColumns);
+	printRow( headers, columnsWidths, numColumns );
+	printSeparator(columnsWidths, numColumns);
+	
+	char quantityCommentsStr[2];
+	sprintf(quantityCommentsStr, "%d", quantityComments );
+	char quantityNoCommentsStr[2];
+	sprintf(quantityNoCommentsStr, "%d", quantityNoComments );
+	char counterLectureBeginnerStr[2];
+	sprintf(counterLectureBeginnerStr, "%d", counterLectureBeginner );
+	char counterLectureIntermediateStr[2];
+	sprintf(counterLectureIntermediateStr, "%d", counterLectureIntermediate );
+	char counterLectureAdvancedStr[2];
+	sprintf(counterLectureAdvancedStr, "%d", counterLectureAdvanced );
+	
+	float average = 0;
+	int sum = 0;
+	int values[5] = { quantityComments, quantityNoComments, counterLectureBeginner, counterLectureIntermediate, counterLectureAdvanced }; 
+	
+	sum = recursiveSum(values, 5);
+	char sumStr[2];
+	sprintf(sumStr, "%d", sum );
+	
+	average = recursiveAverage(values, 5);
+	char averageStr[2];
+	sprintf(averageStr, "%.2f", average );
+	
+	char *data[][3] = {
+		{"01", "Reading Comments",  quantityCommentsStr},
+		{"02", "Reading No Comments",  quantityNoCommentsStr},
+		{"03", "Reading Beginner",  counterLectureBeginnerStr},
+		{"04", "Reading Intermediate",  counterLectureIntermediateStr},
+		{"05", "Reading Advanced",  counterLectureAdvancedStr},
+		{"--", "Sum", sumStr},
+		{"--", "Average",  averageStr},
+	};
+	int numRows = sizeof( data ) / sizeof (data[0]);
+	int i;
+	for( i = 0; i < numRows; i++ ) {
+		printRow( data[i], columnsWidths, numColumns );
+	}
+	printSeparator(columnsWidths, numColumns);
+	printf("\n");
+}
+
+void stadisticsScreen() {
+	system("cls");
+	while (getchar() != '\n'); 
+	printHeader(40, "STADISTICS ABOUT YOUR PROGRESS");
+	
+	counterWordStadistics();
+	counterPhrasesStadistics();
+	counterReadingStadistics();
+	
+	printf("\nPress enter to return\n\n");
+	getchar();
 }
 
 int validateChosenMenuOption( int lower, int upper ) {
@@ -217,7 +426,7 @@ void showTestsMenu(void) {
 	char options[4][SIZE_OPTION] = {
 		"Study words",
 		"Study phrases",
-		"Read history",
+		"Reading activities",
 		"Return"
 	};
 	showOptions(4, options);
@@ -231,7 +440,6 @@ void showReadingMenu(void) {
 	};
 	showOptions(3, options);
 }
-
 
 void welcomeScreen( void ) {	
 	printHeader(40, "ENGLISH LANGUAGE LEARNING SYSTEM");
@@ -301,8 +509,10 @@ void createNewWord( int quantityOfWordsSaved, char words[WORDSQUANTITY][WORDLENG
 	}
 	
 	printf("The word saved correctly\n\n");
+	
 	strcpy(words[quantityOfWordsSaved], word);
 	strcpy(wordsInSpanish[quantityOfWordsSaved], wordInSpanish);
+	
 	system("cls");
 }
 
@@ -351,7 +561,7 @@ void testsScreen( void ) {
 				studyPhrases( phrasesToKnow, phrasesToKnowInSpanish );
 				break;
 			case 3:
-				readingActivities(readingBegginer, readingIntermediate, readingAdvanced);
+				readingActivities( lectures );
 				break;
 			case 4:
 				exit = 1;
@@ -361,37 +571,58 @@ void testsScreen( void ) {
 	
 }
 
-void showReading( int text[3][LECTURELENGTH] ) {
+void showLecture( char text[3][LECTURELENGTH] ) {
+	printHeader(40, "");
 	int i;
 	for ( i = 0; i < 3; i++ ) {
-		printf("%s\n", text[i]);
+		if ( i == 0 ) {
+			printf(NEON_GREEN "%5s\n\n" RESET, text[i] );
+		} else {
+			printf("%5s\n\n", text[i] );
+		}
 	}
 }
 
-void readingActivities( char textBeginner[3][LECTURELENGTH], char textIntermediate[3][LECTURELENGTH], char textAdvanced[3][LECTURELENGTH] ) {
-	system("cls");
+void askForComment( char comments[QUANTITYCOMMENTS][COMMENTLENGTH] ) {
+	while (getchar() != '\n'); 
+	char comment[COMMENTLENGTH];
 	
+	printf(NEON_BLUE "Write a comment about this lecture (-1 TO QUIT): " RESET );
+	scanf("%[^\n]s", comment);
+	
+	strcpy(comments[quantityComments], comment);
+	
+	if ( strcmp(comment, "-1") == 0 || strcmp(comment, "") == 0 ) {
+		quantityNoComments--;
+		printf("\nKeep Practicing\n\n");
+	} else {
+		quantityComments++;
+		printf(NEON_GREEN "\nYou won one point +1" RESET);
+		printf(NEON_GREEN "\nTHANKS FOR YOUR COMMENT\n\n" RESET);	
+	}
+}
+
+void incrementCounterLectures( int level ) {
+	switch( level ) {
+		case 0: counterLectureBeginner++; break;
+		case 1: counterLectureIntermediate++; break;
+		case 2: counterLectureAdvanced++; break;
+	}
+}
+
+void readingActivities( char lectures[QUANTITYLECTURES][3][LECTURELENGTH] ) {
+	system("cls");
 	printHeader(40, "READ EVERYDAY");
 	
+	int chosenOption, index;
 	showReadingMenu();
-	int chosenOption = validateChosenMenuOption(1, 3);
+	chosenOption = validateChosenMenuOption(1, 3);
+	index = chosenOption - 1;
 	
 	system("cls");
-	switch( chosenOption ) {
-		case 1:
-			printf( NEON_GREEN "Title: %s\n\n" RESET, textBeginner[0]);
-			printf("%3s\n",	textBeginner[1]);
-			break;
-		case 2:
-			printf( NEON_GREEN "Title: %s\n\n" RESET, textIntermediate[0]);
-			printf("%3s\n",	textIntermediate[1]);
-			break;
-		case 3:
-			printf( NEON_GREEN "Title: %s\n\n" RESET, textAdvanced[0]);
-			printf("%3s\n",	textAdvanced[1]);
-			break;
-	}
-		
+	showLecture( lectures[index] );
+	incrementCounterLectures( index );
+	askForComment( lectures );
 }
 
 void studyWords( int quantityOfWordsSaved, char words[WORDSQUANTITY][WORDLENGTH], char wordsInSpanish[WORDSQUANTITY][WORDLENGTH] ) {
@@ -419,11 +650,12 @@ void studyWords( int quantityOfWordsSaved, char words[WORDSQUANTITY][WORDLENGTH]
 			wordsCorrectCounter++;
 		} else {
 			printf(RED "\n\nIncorrect! ? The correct answer is: %s\n" RESET, words[randomNumber]);
-			wordIncorrectCounter++;
+			wordIncorrectCounter--;
 		}	
 		
 	} while( strcmp(userInput, "-1") != 0 );
 	
+	quantityOfTestsWords++;
 	system("cls");
 }
 
@@ -435,59 +667,63 @@ int isValueInArray( int value, int size, int arr[] ) {
 	return 0;
 }
 
+int isWordInArray( char word[], int size, char words[QUANTITYQUESTIONOPTIONS][WORDLENGTH] ) {
+	int i;
+	for ( i = 0; i < size; i++ ) {
+		if (strcmp(word, words[i]) == 0) return 1;
+	}
+	return 0;
+}
+
 void studyPhrases (char phrases[QUANTITYPHRASES][WORDLENGTH], char phrasesInSpanish[QUANTITYPHRASES][WORDLENGTH] ) {
-	
-	int counterRightQuestions = 0;
 	int i, randomNumberQuestion, randomPositionAnswer;
-	int questions[QUANTITYQUESTIONSPHRASES] = {0, 0, 0, 0};
+	int questions[QUANTITYQUESTIONSPHRASES] = {0, 0, 0, 0, 0};
 	
-	for ( i = 0; i <= QUANTITYQUESTIONSPHRASES; i++ ) {		
-		
+	for ( i = 0; i < QUANTITYQUESTIONSPHRASES; i++ ) {		
 		int userInput;
-		char options[QUANTITYQUESTIONSPHRASES][WORDLENGTH];
+		char options[QUANTITYQUESTIONOPTIONS][WORDLENGTH] = {0, 0, 0, 0};
 		
 		do {
 			randomNumberQuestion = rand() % QUANTITYPHRASES;		
 		} while( isValueInArray(randomNumberQuestion, QUANTITYQUESTIONSPHRASES, questions) == 1);
 	
 		questions[i] = randomNumberQuestion;
-		
-		randomPositionAnswer = rand() % 4;
 		printf("\n%d. What is the meaning of: " NEON_BLUE "%s?\n\n" RESET, i + 1, phrases[randomNumberQuestion] );
-		strcpy(options[randomPositionAnswer], phrasesInSpanish[randomNumberQuestion]);		
+		
+		randomPositionAnswer = rand() % QUANTITYQUESTIONOPTIONS;
+		strcpy(options[randomPositionAnswer], phrasesInSpanish[randomNumberQuestion]);	 
 		
 		int i;
-		for ( i = 0; i < 4; i++ ) {
+		for ( i = 0; i < QUANTITYQUESTIONOPTIONS; i++ ) {
 			if ( i != randomPositionAnswer ) {
 				int randomOption;
+				char randomPhrase[WORDLENGTH];
 				
 				do {
-					randomOption = rand() % QUANTITYPHRASES;
-				} while( randomOption == randomNumberQuestion || isValueInArray(randomOption, 4, options) == 1 );
+					randomOption = rand() % QUANTITYPHRASES;	
+					strcpy(randomPhrase, phrasesInSpanish[randomOption]);	
+				} while( 
+					randomOption == randomNumberQuestion || 					
+					isWordInArray( randomPhrase, QUANTITYQUESTIONOPTIONS, options ) == 1 
+				);
 				
 				strcpy(options[i], phrasesInSpanish[randomOption]);
 			}
 			printf("%d. %s\n", i + 1, options[i]);
 		}
+	
+		userInput = validateChosenMenuOption(1, QUANTITYQUESTIONOPTIONS);
 			
-		printf("\nEnter your answer: ");
-		scanf("%d", &userInput);
-		
 		if ( randomPositionAnswer == userInput - 1 ) {
 			printf(NEON_GREEN "\n\nCORRECT --- +1 POINT\n" RESET);
 			counterRightQuestions++;
 		} else {
-			printf(RED "\n\nINCORRECT --- 0 POINT\n" RESET);
+			printf(RED "\n\nINCORRECT --- -1 POINT\n" RESET);
+			counterIncorrectQuestions--;
 		}
-		
 	}
 	
-	testsResults[quantityOfTestsPhrasesDone] = counterRightQuestions;
+	testsResults[quantityOfTestsPhrases] = counterRightQuestions;
+	quantityOfTestsPhrases++;
 	printf("\n");
 }
-
-
-
-
-
-
