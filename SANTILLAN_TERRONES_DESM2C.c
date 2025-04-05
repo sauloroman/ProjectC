@@ -1,3 +1,12 @@
+/* ##########################################################
+PROGRAMACIÓN ESTRUCTURADA ---- DESM 2C
+CUATRIMESTRE 2
+PROJECTO FINAL: APLICACIÓN LINUUL PARA PRACTICAR INGLÉS
+
+ALUMNO: SAULO ROMÁN SANTILLÁN NAVA (240642)
+ALUMNO: LUIS JAVIER TERRONES MUÑOZ (240658)
+########################################################## */
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -231,6 +240,8 @@ void welcomeScreen( void ) {
         printf(NEON_PURPLE "%s\n", uta[i]);
     }
     
+    printf(NEON_BLUE "Developer 1: Saulo Román Santillán Nava\n");
+    printf(NEON_BLUE "Developer 2: Luis Javier Terrones Muñoz\n");
 	printf(RESET "\n\nPress Enter to continue...");
     getchar();
 }
